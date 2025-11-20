@@ -282,6 +282,69 @@ app.get("/users/:userId/opiniones", async (req, res) => {
 })
 
 
+// Editar una opinión de una película
+app.put("/movies/:slug/opiniones/:opinionId", async (req, res) => {
+    try {
+        const params = req.params
+        const body = req.body
+
+        const rating = Number(body.rating)
+        const comment = body.comment
+
+        // Validaciones básicas
+        if (!rating || !comment) {
+            res.status(400).send("Faltan datos para editar la opinión")
+            return
+        }
+
+        if (rating < 1 || rating > 5) {
+            res.status(400).send("El rating debe estar entre 1 y 5")
+            return
+        }
+
+        // Buscar película por slug
+        const pelicula = await Movie.findOne({ slug: params.slug })
+        if (!pelicula) {
+            res.status(404).send("Película no encontrada")
+            return
+        }
+
+        // Buscar la opinión dentro del array por su _id
+        const opinion = pelicula.opiniones.id(params.opinionId)
+        if (!opinion) {
+            res.status(404).send("Opinión no encontrada")
+            return
+        }
+
+        // Como esto viene desde "Mis opiniones", asumimos que es del usuario correcto
+        // Actualizar campos editables
+        opinion.rating = rating
+        opinion.comment = comment
+
+        // 🔹 Recalcular rating general (promedio) – versión Programación 1
+        let suma = 0
+        let cantidad = pelicula.opiniones.length
+
+        for (let i = 0; i < cantidad; i++) {
+            suma = suma + pelicula.opiniones[i].rating
+        }
+
+        let promedio = suma / cantidad
+        pelicula.rating = promedio
+
+        // Guardar cambios
+        await pelicula.save()
+
+        res.send("Opinión editada con éxito")
+
+    } catch (e) {
+        console.log(e)
+        res.status(500).send("Error editando opinión")
+    }
+})
+
+
+
 
 async function iniciar() {
     try {
