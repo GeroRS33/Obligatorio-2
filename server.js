@@ -174,11 +174,13 @@ app.get("/movies/:slug/opiniones", async (req, res) => {
             return
         }
 
-        // Solo devolvemos el array de opiniones
+        // Clonamos el array y lo ordenamos por createdAt (más nuevas primero)
+        const opinionesOrdenadas = [...pelicula.opiniones].sort((a, b) => b.createdAt - a.createdAt)
+
         res.json({
             movieSlug: pelicula.slug,
             movieTitle: pelicula.title,
-            opiniones: pelicula.opiniones
+            opiniones: opinionesOrdenadas
         })
 
     } catch (e) {
@@ -196,23 +198,44 @@ app.post("/movies/:slug/opinion", async (req, res) => {
 
         const userId = body.userId
         const username = body.username
-        const rating = body.rating
+        const rating = Number(body.rating)
         const comment = body.comment
 
-        // validaciones básicas
         if (!userId || !username || !rating || !comment) {
             res.status(400).send("Faltan datos para la opinión")
             return
         }
 
-        // busca película
+        if (rating < 1 || rating > 5) {
+            res.status(400).send("El rating debe estar entre 1 y 5")
+            return
+        }
+
+        if (comment.length < 5) {
+            res.status(400).send("El comentario es muy corto")
+            return
+        }
+        if (comment.length > 500) {
+            res.status(400).send("El comentario es muy largo")
+            return
+        }
+
+        const usuario = await User.findById(userId)
+        if (!usuario) {
+            res.status(400).send("Usuario inválido")
+            return
+        }
+
+        // Buscar película por slug
         const pelicula = await Movie.findOne({ slug: params.slug })
         if (!pelicula) {
             res.status(404).send("Película no encontrada")
             return
         }
 
-        // agregar la opinión al array
+
+
+        // Agregar la nueva opinión
         pelicula.opiniones.push({
             userId: userId,
             username: username,
@@ -220,17 +243,18 @@ app.post("/movies/:slug/opinion", async (req, res) => {
             comment: comment
         })
 
+        // 🔹 Recalcular rating general (promedio) – versión Programación 1
+        let suma = 0
+        let cantidad = pelicula.opiniones.length
 
-        let sumRatings = 0
+        for (let i = 0; i < cantidad; i++) {
+            suma = suma + pelicula.opiniones[i].rating
+        }
 
-        for (let i = 0; i < pelicula.opiniones.length; i++) {
-            sumRatings = sumRatings + pelicula.opiniones[i].rating
-            }
-        
-        pelicula.rating = sumRatings / pelicula.opiniones.length
+        let promedio = suma / cantidad
+        pelicula.rating = promedio
 
-
-        // guardar en DB
+        // Guardar cambios
         await pelicula.save()
 
         res.send("Opinión agregada con éxito")
@@ -242,13 +266,6 @@ app.post("/movies/:slug/opinion", async (req, res) => {
 })
 
 
-// Ver si el usuario ya opinó sobre esta peli
-const yaOpino = pelicula.opiniones.some(op => String(op.userId) === String(userId))
-
-if (yaOpino) {
-    res.status(400).send("Ya dejaste una opinión para esta película")
-    return
-}
 
 
 
