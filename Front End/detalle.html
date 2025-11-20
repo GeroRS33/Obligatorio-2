@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clap - Detalle</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="headerClap">
+    <div class="logoheader">
+      <img src="img/logo2.svg" alt="Logo Clap!">
+    </div>
+    <div class="saludoUser">
+      Hola, <span id="username">Username</span>!
+    </div>
+  </header>
+
+  <!-- VOLVER -->
+  <a id="volverBtn" href="home.html">
+    <img src="img/back.svg" alt="Volver" class="volver">
+  </a>
+
+  <!-- DETALLE DE PELÍCULA -->
+  <section class="detalleContainer">
+    <div class="colIzquierda">
+      <img class="posterDetalle" src="img/placeholder.jpg" alt="Poster">
+      <p class="frase">"Frase destacada"</p>
+      <div class="estrellas">★ ★ ★ ★ ☆</div>
+    </div>
+
+    <div class="colDerecha">
+      <h1 class="tituloDetalle">
+        Cargando... <span class="año"></span>
+      </h1>
+      <p class="director">Directed by <a href="#">...</a></p>
+      <p class="generos">Genres: ...</p>
+      <p class="sinopsis">
+        <strong>Synopsys:</strong><br>
+        <em>...</em>
+      </p>
+
+      <h2>Opiniones:</h2>
+      <button class="btnAgregarOpinion">Agregar tu opinión +</button>
+
+      <div id="opinionesContainer">
+        <!-- Opiniones se insertarán por JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- POPUP OPINIÓN -->
+  <div id="popup" class="popupoverlay">
+    <div class="popupcontent">
+      <div class="popupleft">
+        <img src="img/placeholder.jpg" alt="Poster">
+      </div>
+      <div class="popupright">
+        <h2>Título <span class="anio">Año</span></h2>
+        <textarea placeholder="Opinión sobre la película..."></textarea>
+
+        <div class="ratingarea">
+          <label for="rating">Rating:</label>
+          <div class="stars">
+            <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+          </div>
+        </div>
+
+        <button class="btnsubir">Subir Opinión</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="detalle.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

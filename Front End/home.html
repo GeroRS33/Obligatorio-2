@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clap - Home</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <header class="headerClap">
+    <div class="logoheader">
+      <img src="img/logo2.svg" alt="Logo Clap!">
+    </div>
+    <div class="saludoUser">
+      Hola, <span id="username">Username</span>!
+    </div>
+  </header>
+
+  <section class="buscadorContainer">
+  <input type="text" id="buscador" placeholder="Buscar película..." />
+</section>
+
+  <!-- CARRUSEL DE POSTERS -->
+  <section class="carouselContainer">
+    <img src="img/back.svg" alt="Anterior" class="arrow left" id="arrowLeft">
+
+    <div class="carousel" id="carouselPosters">
+      <!-- Acá JS insertará las películas -->
+    </div>
+
+    <img src="img/next.svg" alt="Siguiente" class="arrow right" id="arrowRight">
+  </section>
+
+  <script src="home.js"></script>
+</body>
+
+</html>

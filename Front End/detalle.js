@@ -1,0 +1,51 @@
+// ========== LEER SLUG DE LA URL ==========
+const params = new URLSearchParams(window.location.search);
+const slug = params.get("slug");
+
+if (!slug) {
+  document.body.innerHTML = "<p style='color:white;'>Película no encontrada.</p>";
+} else {
+  fetch(`https://obligatorio-2-jpi9.onrender.com/movies/slug/${slug}`)
+    .then(res => res.json())
+    .then(pelicula => {
+      // Poster
+      const posterImg = document.querySelector(".posterDetalle");
+      posterImg.src = pelicula.posterUrl || "img/placeholder.jpg";
+      posterImg.alt = pelicula.title;
+
+      // Frase
+      document.querySelector(".frase").textContent = `"${pelicula.quote || 'Sin frase destacada'}"`;
+
+      // Estrellas
+      const estrellas = document.querySelector(".estrellas");
+      const estrellasNum = Math.round(pelicula.rating || 0);
+      estrellas.textContent = "★".repeat(estrellasNum) + "☆".repeat(5 - estrellasNum);
+
+      // Título + Año
+      const titulo = document.querySelector(".tituloDetalle");
+      const añoSpan = document.createElement("span");
+      añoSpan.className = "año";
+      añoSpan.textContent = pelicula.year || "¿?";
+      titulo.textContent = pelicula.title + " ";
+      titulo.appendChild(añoSpan);
+
+      // Director
+      const director = document.querySelector(".director a");
+      director.textContent = pelicula.director || "Desconocido";
+      director.href = "#";
+
+      // Géneros
+      document.querySelector(".generos").textContent = "Genres: " + (pelicula.genres?.join(" / ") || "N/A");
+
+      // Sinopsis
+      document.querySelector(".sinopsis em").textContent = pelicula.synopsis || "Sin descripción.";
+
+      // Popup: actualizar también
+      document.querySelector("#popup img").src = pelicula.posterUrl || "img/placeholder.jpg";
+      document.querySelector(".popupcontent h2").innerHTML = `${pelicula.title} <span class="anio">${pelicula.year}</span>`;
+    })
+    .catch(err => {
+      console.error("Error al cargar detalle:", err);
+      document.body.innerHTML = "<p style='color:white;'>Error al cargar la película.</p>";
+    });
+}
