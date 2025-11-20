@@ -242,6 +242,17 @@ app.post("/movies/:slug/opinion", async (req, res) => {
 })
 
 
+// Ver si el usuario ya opinó sobre esta peli
+const yaOpino = pelicula.opiniones.some(op => String(op.userId) === String(userId))
+
+if (yaOpino) {
+    res.status(400).send("Ya dejaste una opinión para esta película")
+    return
+}
+
+
+
+
 // Obtener todas las opiniones de un usuario (Mis críticas)
 app.get("/users/:userId/opiniones", async (req, res) => {
     try {
