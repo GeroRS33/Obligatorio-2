@@ -5,7 +5,7 @@ const slug = params.get("slug");
 if (!slug) {
   document.body.innerHTML = "<p style='color:white;'>Película no encontrada.</p>";
 } else {
-  fetch(`https://obligatorio-2-jpi9.onrender.com/movies/slug/${slug}`)
+  fetch(`https://obligatorio-2-jpi9.onrender.com/movies/${slug}/detalle`)
     .then(res => res.json())
     .then(pelicula => {
       // Poster
@@ -35,7 +35,7 @@ if (!slug) {
       director.href = "#";
 
       // Géneros
-      document.querySelector(".generos").textContent = "Genres: " + (pelicula.genres?.join(" / ") || "N/A");
+      document.querySelector(".generos").textContent = "Genres: " + (pelicula.genero || "N/A");
 
       // Sinopsis
       document.querySelector(".sinopsis em").textContent = pelicula.synopsis || "Sin descripción.";

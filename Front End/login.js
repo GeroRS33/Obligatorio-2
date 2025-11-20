@@ -23,6 +23,6 @@ btnEntrar.addEventListener("click", () => {
 
 // Al hacer clic en "No tengo cuenta aún"
 linkRegistrarme.addEventListener("click", (e) => {
-  e.preventDefault(); // Evita que salte al tope de la página si es un <a>
+  e.preventDefault(); 
   window.location.href = "register.html";
 });

@@ -33,7 +33,7 @@ fetch('https://obligatorio-2-jpi9.onrender.com/movies')
       img.src = movie.posterUrl || 'img/placeholder.jpg';
       img.alt = movie.title;
 
-      // 👉 Redirige al detalle con el slug
+      // Redirige al detalle con el slug
       card.addEventListener('click', () => {
         window.location.href = `detalle.html?slug=${movie.slug}`;
       });
