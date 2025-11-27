@@ -48,13 +48,8 @@ if (!slug) {
     });
 }
 
-<<<<<<< HEAD
 
-const usuarioGuardado = localStorage.getItem("usuarioLogueado");
-const usuario = JSON.parse(usuarioGuardado);
 
-console.log(usuario)
-=======
 // ========== MOSTRAR NOMBRE DE USUARIO EN HEADER ==========
 const username = localStorage.getItem("username");
 
@@ -62,4 +57,4 @@ if (username) {
   const spanUsername = document.getElementById("username");
   spanUsername.textContent = username;
 }
->>>>>>> 41cd1af5860f978ce36501bc38c8ce98c0b31574
+
