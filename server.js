@@ -33,24 +33,24 @@ app.get("/movies", async (req, res) => {
 })
 
 
-// obtener detalles de una película (sin opiniones)
+// obtener detalles de una película
 app.get("/movies/:slug/detalle", async (req, res) => {
     try {
-        const params = req.params
+      const params = req.params;
 
-        const pelicula = await Movie.findOne({ slug: params.slug }).select("-opiniones")
-
-        if (!pelicula) {
-            res.status(404).send("Película no encontrada")
-            return
-        }
-
-        res.json(pelicula)
+      const pelicula = await Movie.findOne({ slug: params.slug });
+  
+      if (!pelicula) {
+        res.status(404).send("Película no encontrada");
+        return;
+      }
+  
+      res.json(pelicula);
     } catch (e) {
-        console.log(e)
-        res.status(500).send("Error obteniendo detalles de la película")
+      console.log(e);
+      res.status(500).send("Error obteniendo detalles de la película");
     }
-})
+  });
 
 
 

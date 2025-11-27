@@ -2,12 +2,16 @@
 const params = new URLSearchParams(window.location.search);
 const slug = params.get("slug");
 
+
+
 if (!slug) {
   document.body.innerHTML = "<p style='color:white;'>Película no encontrada.</p>";
 } else {
   fetch(`https://obligatorio-2-jpi9.onrender.com/movies/${slug}/detalle`)
     .then(res => res.json())
     .then(pelicula => {
+
+      console.error(pelicula)
       
       const posterImg = document.querySelector(".posterDetalle");
       posterImg.src = pelicula.posterUrl || "img/placeholder.jpg";

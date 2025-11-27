@@ -13,7 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const API_BASE = "https://obligatorio-2-jpi9.onrender.com";
 
- 
+  
+  
 
   // Leer slug desde la URL (?slug=inception)
   const params = new URLSearchParams(window.location.search);
@@ -25,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Renderizar UNA opinión en el HTML
   function renderOpinion(opinion) {
+    
     const opinionDiv = document.createElement("div");
     opinionDiv.className = "opinion";
 
@@ -36,6 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const spanAutor = document.createElement("span");
     spanAutor.className = "autor";
     spanAutor.textContent = opinion.username;
+
 
     const br = document.createElement("br");
 
@@ -78,6 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         opinionesContainer.innerHTML = "";
+        console.log(opiniones)
         for (let i = 0; i < opiniones.length; i++) {
           renderOpinion(opiniones[i]);
         }
@@ -122,78 +126,73 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ===================== SUBIR OPINIÓN A LA API =====================
 
-  if (btnSubir) {
-    btnSubir.addEventListener('click', () => {
-      const opinionTexto = textarea.value.trim();
-      const usuarioGuardado = localStorage.getItem("usuarioLogueado");
+  // ===================== SUBIR OPINIÓN A LA API =====================
 
-      if (!usuarioGuardado) {
-        alert("Debes estar logueado para opinar.");
-        return;
-      }
+if (btnSubir) {
+  btnSubir.addEventListener('click', () => {
+    const opinionTexto = textarea.value.trim();
 
-      const usuario = JSON.parse(usuarioGuardado);
+    // ✅ Leemos el usuario guardado de localStorage (en tus claves reales)
+    const userId = localStorage.getItem("userId");
+    const username = localStorage.getItem("username");
 
-      // Tratamos de soportar tanto {data:{...}} como {...}
-      let userId = usuario.data._id;
-      let username = usuario.data.username;
+    if (!userId || !username) {
+      alert("Debes estar logueado para opinar.");
+      return;
+    }
 
-      if (!userId || !username) {
-        alert("Error leyendo datos del usuario logueado.");
-        return;
-      }
+    if (opinionTexto === '' || selectedRating === 0) {
+      alert("Por favor, escribe una opinión y elige un rating.");
+      return;
+    }
 
-      if (opinionTexto === '' || selectedRating === 0) {
-        alert("Por favor, escribe una opinión y elige un rating.");
-        return;
-      }
+    if (!slug) {
+      alert("No se encontró la película (slug inválido).");
+      return;
+    }
 
-      if (!slug) {
-        alert("No se encontró la película (slug inválido).");
-        return;
-      }
+    console.log("userId:", userId, "username:", username);
 
-      // 🚀 ENVIAR A LA API (NO toqueteamos el HTML acá)
-      fetch(API_BASE + "/movies/" + slug + "/opinion", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          userId: userId,
-          username: username,
-          rating: selectedRating,
-          comment: opinionTexto
-        })
+    // 🚀 ENVIAR A LA API
+    fetch(API_BASE + "/movies/" + slug + "/opinion", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        userId: userId,
+        username: username,
+        rating: selectedRating,
+        comment: opinionTexto
       })
-        .then(function (res) {
-          if (!res.ok) {
-            return res.text().then(function (text) {
-              throw new Error(text || "Error al agregar la opinión");
-            });
-          }
-          return res.text();
-        })
-        .then(function (msg) {
-          console.log("Opinión agregada:", msg);
+    })
+      .then(function (res) {
+        if (!res.ok) {
+          return res.text().then(function (text) {
+            throw new Error(text || "Error al agregar la opinión");
+          });
+        }
+        return res.text();
+      })
+      .then(function (msg) {
+        console.log("Opinión agregada:", msg);
 
-          // Limpiar campos
-          textarea.value = '';
-          selectedRating = 0;
-          for (let i = 0; i < stars.length; i++) {
-            stars[i].classList.remove('active');
-          }
-          popup.style.display = 'none';
+        // 🔁 Refrescamos la lista de opiniones desde la API
+        cargarOpinionesDesdeAPI();
 
-          // 🔁 AHORA SÍ: recargamos TODA la lista desde la API
-          cargarOpinionesDesdeAPI();
-        })
-        .catch(function (err) {
-          console.error("Error al enviar opinión:", err);
-          alert(err.message || "Error al enviar opinión");
-        });
-    });
-  }
+        // 🧹 Limpiar los campos del popup
+        textarea.value = '';
+        for (let i = 0; i < stars.length; i++) {
+          stars[i].classList.remove('active');
+        }
+        popup.style.display = 'none';
+      })
+      .catch(function (err) {
+        console.error("Error al enviar opinión:", err);
+        alert(err.message || "Error al enviar opinión");
+      });
+  });
+}
 
   // ===================== AL CARGAR LA PÁGINA =====================
 
