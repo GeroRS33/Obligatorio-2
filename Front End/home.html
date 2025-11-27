@@ -20,20 +20,17 @@
     </div>
   </header>
 
-  <section class="buscadorContainer">
-    <input type="text" id="buscador" placeholder="Buscar película..." />
-  </section>
+  <main>
+    <section class="buscadorContainer">
+      <input type="text" id="buscador" placeholder="Buscar película..." />
+    </section>
 
-  <!-- CARRUSEL DE POSTERS -->
-  <section class="carouselContainer">
-    <img src="img/back.svg" alt="Anterior" class="arrow left" id="arrowLeft">
-
-    <div class="carousel" id="carouselPosters">
-      <!-- Acá JS insertará las películas -->
-    </div>
-
-    <img src="img/next.svg" alt="Siguiente" class="arrow right" id="arrowRight">
-  </section>
+    <section class="carouselContainer">
+      <img src="img/back.svg" alt="Anterior" class="arrow left" id="arrowLeft">
+      <div class="carousel" id="carouselPosters"></div>
+      <img src="img/next.svg" alt="Siguiente" class="arrow right" id="arrowRight">
+    </section>
+  </main>
 
   <script src="home.js"></script>
 </body>
