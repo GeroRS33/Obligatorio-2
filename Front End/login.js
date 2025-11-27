@@ -16,9 +16,7 @@ btnEntrar.addEventListener("click", async () => {
   try {
     const response = await fetch("https://obligatorio-2-jpi9.onrender.com/login", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password })
     });
 
@@ -28,7 +26,7 @@ btnEntrar.addEventListener("click", async () => {
       } else if (response.status === 401) {
         mostrarError("Usuario o contraseña incorrectos");
       } else {
-        mostrarError("Error de conexión");
+        mostrarError("Error de conexión con el servidor");
       }
       return;
     }
@@ -39,6 +37,7 @@ btnEntrar.addEventListener("click", async () => {
     localStorage.setItem("username", data.username);
     localStorage.setItem("userId", data.userId);
 
+    // Redirigir al home
     window.location.href = "home.html";
 
   } catch (error) {
@@ -52,7 +51,9 @@ linkRegistrarme.addEventListener("click", (e) => {
   window.location.href = "register.html";
 });
 
+// Función reutilizable para mostrar errores
 function mostrarError(mensaje) {
   mensajeError.textContent = mensaje;
   mensajeError.style.color = "red";
+  mensajeError.style.display = "block";
 }
