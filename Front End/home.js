@@ -66,3 +66,15 @@ const storedUser = localStorage.getItem('username');
 if (storedUser) {
   document.getElementById('username').textContent = storedUser;
 }
+
+const logoutBtn = document.getElementById("iconLogout");
+const opinionesBtn = document.getElementById("iconOpiniones");
+
+logoutBtn.addEventListener("click", () => {
+  localStorage.clear(); // Elimina usuario logueado
+  window.location.href = "index.html"; // Volver al login
+});
+
+opinionesBtn.addEventListener("click", () => {
+  window.location.href = "opiniones.html"; // Página para ver y editar opiniones
+});

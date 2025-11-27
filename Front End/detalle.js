@@ -62,3 +62,14 @@ if (username) {
   spanUsername.textContent = username;
 }
 
+const logoutBtn = document.getElementById("iconLogout");
+const opinionesBtn = document.getElementById("iconOpiniones");
+
+logoutBtn.addEventListener("click", () => {
+  localStorage.clear(); // Elimina usuario logueado
+  window.location.href = "index.html"; // Volver al login
+});
+
+opinionesBtn.addEventListener("click", () => {
+  window.location.href = "opiniones.html"; // Página para ver y editar opiniones
+});

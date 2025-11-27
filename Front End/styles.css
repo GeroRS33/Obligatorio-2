@@ -52,6 +52,23 @@ body {
   max-width: 50vw;
 }
 
+.userActions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.iconHeader {
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.iconHeader:hover {
+  transform: scale(1.2);
+}
+
 /* ========= LOGO CENTRAL ========= */
 .logoPrincipal {
   text-align: center;
@@ -154,7 +171,6 @@ body {
 }
 
 /* ========= CARRUSEL ========= */
-
 main {
   padding-top: 100px;
 }
