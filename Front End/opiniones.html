@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mis Opiniones - Clap</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="headerClap">
+    <div class="logoheader">
+      <img src="img/logo2.svg" alt="Logo Clap!">
+    </div>
+
+    <div class="userActions">
+      <span class="saludoUser">Hola, <span id="username">Username</span>!</span>
+      <img src="img/cerrarsesion.svg" alt="Cerrar sesión" id="iconLogout" class="iconHeader" title="Cerrar sesión">
+    </div>
+  </header>
+
+  <!-- VOLVER -->
+  <a id="volverBtn" href="home.html">
+    <img src="img/back.svg" alt="Volver" class="volver">
+  </a>
+
+  <!-- CONTENIDO DE OPINIONES -->
+  <section class="opinionesUsuario" style="padding: 120px 24px 40px;">
+    <h2 style="color: white;">Tus Opiniones</h2>
+    <div id="opinionesList">
+      <!-- Aquí se insertarán las opiniones del usuario -->
+    </div>
+  </section>
+
+  <script src="opiniones.js"></script>
+</body>
+</html>
