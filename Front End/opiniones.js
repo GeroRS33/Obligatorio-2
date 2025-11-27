@@ -1,6 +1,6 @@
 const username = localStorage.getItem("username");
 const userId = localStorage.getItem("userId");
-const API_BASE = "http://localhost:3000"; // ⚠️ cambiar a Render al subir
+const API_BASE = "https://obligatorio-2-jpi9.onrender.com"; // ⚠️ cambiar a Render al subir
 
 // Mostrar el username arriba
 document.getElementById("username").textContent = username;
