@@ -8,18 +8,18 @@ if (!slug) {
   fetch(`https://obligatorio-2-jpi9.onrender.com/movies/${slug}/detalle`)
     .then(res => res.json())
     .then(pelicula => {
-      // Poster
+      
       const posterImg = document.querySelector(".posterDetalle");
       posterImg.src = pelicula.posterUrl || "img/placeholder.jpg";
       posterImg.alt = pelicula.title;
 
-      // Estrellas
+      
       const estrellas = document.querySelector(".estrellas");
       const estrellasNum = Math.round(pelicula.rating || 0);
       estrellas.textContent = "★".repeat(estrellasNum) + "☆".repeat(5 - estrellasNum);
       
 
-      // Título + Año
+      
       const titulo = document.querySelector(".tituloDetalle");
       const añoSpan = document.createElement("span");
       añoSpan.className = "año";
@@ -27,15 +27,15 @@ if (!slug) {
       titulo.textContent = pelicula.title + " ";
       titulo.appendChild(añoSpan);
 
-      // Director
+      
       const director = document.querySelector(".director a");
       director.textContent = pelicula.director || "Cargando...";
       director.href = "#";
 
-      // Géneros
+      
       document.querySelector(".generos").textContent = "Genres: " + (pelicula.genero || "N/A");
 
-      // Sinopsis
+      
       document.querySelector(".sinopsis em").textContent = pelicula.synopsis || "Cargando....";
 
       // Popup: actualizar también
