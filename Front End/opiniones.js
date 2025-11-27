@@ -40,11 +40,12 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
+  // traer opiniones del usuario
   fetch(`${API_BASE}/users/${userId}/opiniones`)
     .then(res => res.json())
     .then(data => {
       const opiniones = data.opiniones;
-      console.log(data)
+      console.log(data);
 
       if (!Array.isArray(opiniones) || opiniones.length === 0) {
         contenedor.innerHTML = "<p style='color:white;'>todavía no escribiste opiniones.</p>";
@@ -55,52 +56,91 @@ document.addEventListener("DOMContentLoaded", () => {
         const div = document.createElement("div");
         div.className = "opinion";
 
-        div.innerHTML = `
-          <div class="opinionInfo" style="display: flex; align-items: center; gap: 16px;">
-            <img src="${op.posterUrl}" alt="Poster de ${op.movieTitle}" style="width: 50px; height: 75px; border-radius: 8px; object-fit: cover;">
-            <div>
-              <h3 class="movieTitle">${op.movieTitle}</h3>
-              <p class="comment">${op.comment}</p>
-              <span class="rating">
-                ★ <span class="ratingValue">${op.rating}</span>/5
-              </span>
-            </div>
-          </div>
-          <div class="opinionActions">
-            <button 
-              type="button"
-              class="editBtn" 
-              data-id="${op.opinionId}" 
-              data-slug="${op.movieSlug}"
-              data-comment="${op.comment.replace(/"/g, '&quot;')}"
-              data-rating="${op.rating}"
-              data-movie-title="${op.movieTitle.replace(/"/g, '&quot;')}"
-            >
-              <img src="img/editar.svg" alt="Editar" width="20" height="20">
-            </button>
-            <button 
-              type="button"
-              class="deleteBtn" 
-              data-id="${op.opinionId}" 
-              data-slug="${op.movieSlug}"
-            >
-              <img src="img/eliminar.svg" alt="Eliminar" width="20" height="20">
-            </button>
-          </div>
-        `;
+        fetch(`${API_BASE}/movies/${op.movieSlug}/detalle`)
+          .then(res => res.json())
+          .then(pelicula => {
+            const posterUrl = pelicula.posterUrl || "img/placeholder.jpg";
 
-        contenedor.appendChild(div);
+            div.innerHTML = `
+              <div class="opinionInfo">
+                <img src="${posterUrl}" alt="${op.movieTitle}" class="posterOpinion">
+                <div>
+                  <h3 class="movieTitle">${op.movieTitle}</h3>
+                  <p class="comment">${op.comment}</p>
+                  <span class="rating">★ <span class="ratingValue">${op.rating}</span>/5</span>
+                </div>
+              </div>
+              <div class="opinionActions">
+                <button 
+                  type="button"
+                  class="editBtn" 
+                  data-id="${op.opinionId}" 
+                  data-slug="${op.movieSlug}"
+                  data-comment="${op.comment.replace(/"/g, '&quot;')}"
+                  data-rating="${op.rating}"
+                  data-movie-title="${op.movieTitle.replace(/"/g, '&quot;')}"
+                >
+                  <img src="img/editar.svg" alt="editar opinión" class="iconOpinion">
+                </button>
+                <button 
+                  type="button"
+                  class="deleteBtn" 
+                  data-id="${op.opinionId}" 
+                  data-slug="${op.movieSlug}"
+                >
+                  <img src="img/eliminar.svg" alt="eliminar opinión" class="iconOpinion">
+                </button>
+              </div>
+            `;
+
+            contenedor.appendChild(div);
+          })
+          .catch(err => {
+            console.error("error al obtener poster:", err);
+            div.innerHTML = `
+              <div class="opinionInfo">
+                <h3 class="movieTitle">${op.movieTitle}</h3>
+                <p class="comment">${op.comment}</p>
+                <span class="rating">★ <span class="ratingValue">${op.rating}</span>/5</span>
+              </div>
+              <div class="opinionActions">
+                <button 
+                  type="button"
+                  class="editBtn" 
+                  data-id="${op.opinionId}" 
+                  data-slug="${op.movieSlug}"
+                  data-comment="${op.comment.replace(/"/g, '&quot;')}"
+                  data-rating="${op.rating}"
+                  data-movie-title="${op.movieTitle.replace(/"/g, '&quot;')}"
+                >
+                  <img src="img/editar.svg" alt="editar opinión" class="iconOpinion">
+                </button>
+                <button 
+                  type="button"
+                  class="deleteBtn" 
+                  data-id="${op.opinionId}" 
+                  data-slug="${op.movieSlug}"
+                >
+                  <img src="img/eliminar.svg" alt="eliminar opinión" class="iconOpinion">
+                </button>
+              </div>
+            `;
+            contenedor.appendChild(div);
+          });
       });
 
-      // borrar opinión
-      const deleteButtons = document.querySelectorAll(".deleteBtn");
-      deleteButtons.forEach(btn => {
-        btn.addEventListener("click", (event) => {
+      // === delegación de eventos: delete + edit ===
+      contenedor.addEventListener("click", (event) => {
+        const deleteBtn = event.target.closest(".deleteBtn");
+        const editBtn = event.target.closest(".editBtn");
+
+        // borrar opinión
+        if (deleteBtn) {
           event.preventDefault();
           event.stopPropagation();
 
-          const opinionId = btn.dataset.id;
-          const slug = btn.dataset.slug;
+          const opinionId = deleteBtn.dataset.id;
+          const slug = deleteBtn.dataset.slug;
 
           if (!confirm("¿seguro que querés borrar esta opinión?")) return;
 
@@ -109,29 +149,28 @@ document.addEventListener("DOMContentLoaded", () => {
           })
             .then(res => {
               if (!res.ok) throw new Error("error al borrar opinión");
-              btn.closest(".opinion").remove();
+              deleteBtn.closest(".opinion").remove();
             })
             .catch(err => {
               console.error(err);
               alert("error al borrar la opinión");
             });
-        });
-      });
 
-      // editar opinión
-      const editButtons = document.querySelectorAll(".editBtn");
-      editButtons.forEach(btn => {
-        btn.addEventListener("click", (event) => {
+          return; // ya manejamos este click
+        }
+
+        // editar opinión (abrir popup)
+        if (editBtn) {
           event.preventDefault();
           event.stopPropagation();
 
-          opinionIdActual = btn.dataset.id;
-          slugActual = btn.dataset.slug;
-          botonEditActual = btn;
+          opinionIdActual = editBtn.dataset.id;
+          slugActual = editBtn.dataset.slug;
+          botonEditActual = editBtn;
 
-          const oldComment = btn.dataset.comment;
-          const oldRating = Number(btn.dataset.rating);
-          const movieTitle = btn.dataset["movieTitle"];
+          const oldComment = editBtn.dataset.comment;
+          const oldRating = Number(editBtn.dataset.rating);
+          const movieTitle = editBtn.dataset.movieTitle;
 
           if (tituloPeliculaSpan) {
             tituloPeliculaSpan.textContent = movieTitle || "";
@@ -147,9 +186,10 @@ document.addEventListener("DOMContentLoaded", () => {
           if (popupEditar) {
             popupEditar.style.display = "flex";
           }
-        });
+        }
       });
 
+      // cerrar popup haciendo click afuera
       if (popupEditar) {
         popupEditar.addEventListener("click", (e) => {
           if (e.target === popupEditar) {
@@ -158,6 +198,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
 
+      // selección de estrellas en popup editar
       for (let i = 0; i < starsEditar.length; i++) {
         starsEditar[i].addEventListener("click", () => {
           selectedRatingEditar = i + 1;
@@ -187,6 +228,7 @@ document.addEventListener("DOMContentLoaded", () => {
         actualizarEstrellasEditar();
       }
 
+      // guardar cambios (put)
       if (btnGuardarEdicion) {
         btnGuardarEdicion.addEventListener("click", () => {
           if (!opinionIdActual || !slugActual) {

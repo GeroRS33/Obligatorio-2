@@ -498,6 +498,20 @@ main {
   transition: transform 0.2s ease;
 }
 
+.posterOpinion {
+  width: 60px;
+  height: 90px;
+  border-radius: 8px;
+  object-fit: cover;
+  margin-right: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.opinionInfo {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
 #opinionesList .opinion button:hover {
   transform: scale(1.2);
 }
@@ -513,6 +527,11 @@ main {
 
 .iconHeader:hover {
   transform: scale(1.1);
+}
+
+.iconOpinion {
+  width: 28px;
+  height: 28px;
 }
 
 @media (max-width: 768px) {
@@ -623,3 +642,4 @@ main {
     height: 22px;
   }
 }
+
