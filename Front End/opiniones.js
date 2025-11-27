@@ -1,5 +1,3 @@
-// opiniones.js
-
 const API_BASE = "https://obligatorio-2-jpi9.onrender.com";
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -25,7 +23,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  // referencias del popup editar
   const popupEditar = document.getElementById("popupEditar");
   const textareaEditar = document.getElementById("textareaEditar");
   const btnGuardarEdicion = document.getElementById("btnGuardarEdicion");
@@ -43,11 +40,11 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  // traer opiniones del usuario
   fetch(`${API_BASE}/users/${userId}/opiniones`)
     .then(res => res.json())
     .then(data => {
       const opiniones = data.opiniones;
+      console.log(data)
 
       if (!Array.isArray(opiniones) || opiniones.length === 0) {
         contenedor.innerHTML = "<p style='color:white;'>todavía no escribiste opiniones.</p>";
@@ -59,12 +56,15 @@ document.addEventListener("DOMContentLoaded", () => {
         div.className = "opinion";
 
         div.innerHTML = `
-          <div class="opinionInfo">
-            <h3 class="movieTitle">${op.movieTitle}</h3>
-            <p class="comment">${op.comment}</p>
-            <span class="rating">
-              ★ <span class="ratingValue">${op.rating}</span>/5
-            </span>
+          <div class="opinionInfo" style="display: flex; align-items: center; gap: 16px;">
+            <img src="${op.posterUrl}" alt="Poster de ${op.movieTitle}" style="width: 50px; height: 75px; border-radius: 8px; object-fit: cover;">
+            <div>
+              <h3 class="movieTitle">${op.movieTitle}</h3>
+              <p class="comment">${op.comment}</p>
+              <span class="rating">
+                ★ <span class="ratingValue">${op.rating}</span>/5
+              </span>
+            </div>
           </div>
           <div class="opinionActions">
             <button 
@@ -76,7 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
               data-rating="${op.rating}"
               data-movie-title="${op.movieTitle.replace(/"/g, '&quot;')}"
             >
-              📝
+              <img src="img/editar.svg" alt="Editar" width="20" height="20">
             </button>
             <button 
               type="button"
@@ -84,7 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
               data-id="${op.opinionId}" 
               data-slug="${op.movieSlug}"
             >
-              🗑️
+              <img src="img/eliminar.svg" alt="Eliminar" width="20" height="20">
             </button>
           </div>
         `;
@@ -118,7 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       });
 
-      // editar opinión (popup)
+      // editar opinión
       const editButtons = document.querySelectorAll(".editBtn");
       editButtons.forEach(btn => {
         btn.addEventListener("click", (event) => {
@@ -150,7 +150,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       });
 
-      // cerrar popup haciendo clic fuera
       if (popupEditar) {
         popupEditar.addEventListener("click", (e) => {
           if (e.target === popupEditar) {
@@ -159,7 +158,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
 
-      // selección de estrellas en popup editar
       for (let i = 0; i < starsEditar.length; i++) {
         starsEditar[i].addEventListener("click", () => {
           selectedRatingEditar = i + 1;
@@ -189,7 +187,6 @@ document.addEventListener("DOMContentLoaded", () => {
         actualizarEstrellasEditar();
       }
 
-      // guardar cambios (put)
       if (btnGuardarEdicion) {
         btnGuardarEdicion.addEventListener("click", () => {
           if (!opinionIdActual || !slugActual) {
