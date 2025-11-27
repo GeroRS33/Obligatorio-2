@@ -1,3 +1,9 @@
+
+
+
+console.log(usuario);
+
+
 document.addEventListener('DOMContentLoaded', () => {
   const popup = document.getElementById('popup');
   const btnAgregar = document.querySelector('.btnAgregarOpinion');
@@ -7,6 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const opinionesContainer = document.querySelector('#opinionesContainer');
 
   const API_BASE = "https://obligatorio-2-jpi9.onrender.com";
+
+ 
 
   // Leer slug desde la URL (?slug=inception)
   const params = new URLSearchParams(window.location.search);
@@ -128,16 +136,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const usuario = JSON.parse(usuarioGuardado);
 
       // Tratamos de soportar tanto {data:{...}} como {...}
-      let userId = null;
-      let username = null;
-
-      if (usuario.data) {
-        userId = usuario.data.userId;
-        username = usuario.data.username;
-      } else {
-        userId = usuario.userId;
-        username = usuario.username;
-      }
+      let userId = usuario.data._id;
+      let username = usuario.data.username;
 
       if (!userId || !username) {
         alert("Error leyendo datos del usuario logueado.");

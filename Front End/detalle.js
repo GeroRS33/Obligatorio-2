@@ -47,3 +47,9 @@ if (!slug) {
       document.body.innerHTML = "<p style='color:white;'>Error al cargar la película.</p>";
     });
 }
+
+
+const usuarioGuardado = localStorage.getItem("usuarioLogueado");
+const usuario = JSON.parse(usuarioGuardado);
+
+console.log(usuario)
