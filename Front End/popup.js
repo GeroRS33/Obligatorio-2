@@ -84,47 +84,82 @@ document.addEventListener('DOMContentLoaded', () => {
     opinionesContainer.appendChild(opinionDiv);
   }
 
-  // Cargar opiniones desde la API para esta película
-  function cargarOpinionesDesdeAPI() {
-    if (!slug) {
-      console.error("No hay slug en la URL");
-      return;
-    }
-
-    if (!opinionesContainer) return;
-
-    opinionesContainer.innerHTML = "Cargando opiniones...";
-
-    fetch(`${API_BASE}/movies/${slug}/opiniones`)
-      .then(function (res) {
-        if (!res.ok) {
-          throw new Error("Error al obtener opiniones");
-        }
-        return res.json();
-      })
-      .then(function (data) {
-        const opiniones = data.opiniones || [];
-
-        if (opiniones.length === 0) {
-          opinionesContainer.innerHTML = "¡Sé el primero en opinar!";
-          // aunque no haya opiniones, actualizamos rating (por si pasa de 0 a algo)
-          actualizarRating();
-          return;
-        }
-
-        opinionesContainer.innerHTML = "";
-        for (let i = 0; i < opiniones.length; i++) {
-          renderOpinion(opiniones[i]);
-        }
-
-        // Cada vez que recargo opiniones, actualizo rating
-        actualizarRating();
-      })
-      .catch(function (err) {
-        console.error("Error cargando opiniones:", err);
-        opinionesContainer.innerHTML = "Error cargando opiniones.";
-      });
+  // ===================== CARGAR OPINIONES DESDE LA API =====================
+function cargarOpinionesDesdeAPI() {
+  if (!slug) {
+    console.error("No hay slug en la URL");
+    return;
   }
+
+  if (!opinionesContainer) return;
+
+  opinionesContainer.innerHTML = "Cargando opiniones...";
+
+  fetch(`${API_BASE}/movies/${slug}/opiniones`)
+    .then(function (res) {
+      if (!res.ok) {
+        throw new Error("Error al obtener opiniones");
+      }
+      return res.json();
+    })
+    .then(function (data) {
+      const opiniones = data.opiniones || [];
+
+      // 🧠 Leer userId del localStorage
+      const userId = localStorage.getItem("userId");
+
+      // 🔒 Manejo del botón "Agregar tu opinión"
+      const btnAgregar = document.querySelector(".btnAgregarOpinion");
+      if (btnAgregar) {
+        if (userId) {
+          // ¿Ya existe una opinión de este user en esta peli?
+          const yaOpino = opiniones.some(function (op) {
+            return String(op.userId) === String(userId);
+          });
+
+          if (yaOpino) {
+            // Deshabilitar y cambiar texto
+            btnAgregar.disabled = true;
+            btnAgregar.textContent = "Ya dejaste una opinión";
+            btnAgregar.style.opacity = "0.6";
+            btnAgregar.style.cursor = "not-allowed";
+          } else {
+            // Asegurarse de que esté habilitado si NO opinó
+            btnAgregar.disabled = false;
+            btnAgregar.textContent = "Agregar tu opinión +";
+            btnAgregar.style.opacity = "1";
+            btnAgregar.style.cursor = "pointer";
+          }
+        } else {
+          // Si no hay user logueado
+          btnAgregar.disabled = false;
+          btnAgregar.textContent = "Agregar tu opinión +";
+          btnAgregar.style.opacity = "1";
+          btnAgregar.style.cursor = "pointer";
+        }
+      }
+
+      // 📝 Mostrar mensaje si no hay opiniones
+      if (opiniones.length === 0) {
+        opinionesContainer.innerHTML = "¡Sé el primero en opinar!";
+        actualizarRating();
+        return;
+      }
+
+      // Renderizar opiniones
+      opinionesContainer.innerHTML = "";
+      for (let i = 0; i < opiniones.length; i++) {
+        renderOpinion(opiniones[i]);
+      }
+
+      // Actualizar rating luego de mostrar la lista
+      actualizarRating();
+    })
+    .catch(function (err) {
+      console.error("Error cargando opiniones:", err);
+      opinionesContainer.innerHTML = "Error cargando opiniones.";
+    });
+}
 
   // ===================== POPUP Y ESTRELLAS =====================
 

@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
               data-rating="${op.rating}"
               data-movie-title="${op.movieTitle.replace(/"/g, '&quot;')}"
             >
-              <img src="img/editar.svg" alt="Editar opinión">
+              📝
             </button>
             <button 
               type="button"
@@ -85,7 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
               data-id="${op.opinionId}" 
               data-slug="${op.movieSlug}"
             >
-              <img src="img/eliminar.svg" alt="Eliminar opinión">
+              🗑️
             </button>
           </div>
         `;

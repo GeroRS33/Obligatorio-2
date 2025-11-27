@@ -78,8 +78,8 @@ function recalcularRatingPelicula(pelicula) {
   }
   
   
-  // =================== AGREGAR OPINIÓN ===================
-  app.post("/movies/:slug/opinion", async (req, res) => {
+  // =================== AGREGAR OPINIÓN (1 por usuario) ===================
+app.post("/movies/:slug/opinion", async (req, res) => {
     try {
       const { slug } = req.params;
       const { userId, username, rating, comment } = req.body;
@@ -96,9 +96,17 @@ function recalcularRatingPelicula(pelicula) {
         return;
       }
   
+      // Buscar la película
       const pelicula = await Movie.findOne({ slug });
       if (!pelicula) {
         res.status(404).send("Película no encontrada");
+        return;
+      }
+  
+      // ✅ Nuevo: chequear si este usuario ya opinó esta película
+      const yaOpino = pelicula.opiniones.some(op => String(op.userId) === String(userId));
+      if (yaOpino) {
+        res.status(400).send("Ya dejaste una opinión para esta película");
         return;
       }
   
@@ -109,7 +117,8 @@ function recalcularRatingPelicula(pelicula) {
         rating: ratingNum,
         comment,
       });
-
+  
+      // Recalcular rating promedio con helper
       recalcularRatingPelicula(pelicula);
   
       // Guardar en base de datos
