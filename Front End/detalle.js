@@ -13,32 +13,30 @@ if (!slug) {
       posterImg.src = pelicula.posterUrl || "img/placeholder.jpg";
       posterImg.alt = pelicula.title;
 
-      // Frase
-      document.querySelector(".frase").textContent = `"${pelicula.quote || 'Sin frase destacada'}"`;
-
       // Estrellas
       const estrellas = document.querySelector(".estrellas");
       const estrellasNum = Math.round(pelicula.rating || 0);
       estrellas.textContent = "★".repeat(estrellasNum) + "☆".repeat(5 - estrellasNum);
+      
 
       // Título + Año
       const titulo = document.querySelector(".tituloDetalle");
       const añoSpan = document.createElement("span");
       añoSpan.className = "año";
-      añoSpan.textContent = pelicula.year || "¿?";
+      añoSpan.textContent = pelicula.year ;
       titulo.textContent = pelicula.title + " ";
       titulo.appendChild(añoSpan);
 
       // Director
       const director = document.querySelector(".director a");
-      director.textContent = pelicula.director || "Desconocido";
+      director.textContent = pelicula.director || "Cargando...";
       director.href = "#";
 
       // Géneros
       document.querySelector(".generos").textContent = "Genres: " + (pelicula.genero || "N/A");
 
       // Sinopsis
-      document.querySelector(".sinopsis em").textContent = pelicula.synopsis || "Sin descripción.";
+      document.querySelector(".sinopsis em").textContent = pelicula.synopsis || "Cargando....";
 
       // Popup: actualizar también
       document.querySelector("#popup img").src = pelicula.posterUrl || "img/placeholder.jpg";

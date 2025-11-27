@@ -51,4 +51,6 @@ fetch('https://obligatorio-2-jpi9.onrender.com/movies')
 const storedUser = localStorage.getItem('username');
 if (storedUser) {
   document.getElementById('username').textContent = storedUser;
+
+  console.log(storedUser);
 }

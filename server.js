@@ -254,8 +254,7 @@ app.post("/movies/:slug/opinion", async (req, res) => {
         let promedio = suma / cantidad
         pelicula.rating = promedio
 
-        // Guardar cambios
-        await pelicula.save()
+        await pelicula.save() 
 
         res.send("Opinión agregada con éxito")
 
@@ -370,6 +369,55 @@ app.put("/movies/:slug/opiniones/:opinionId", async (req, res) => {
         res.status(500).send("Error editando opinión")
     }
 })
+
+// Eliminar una opinión de una película
+app.delete("/movies/:slug/opiniones/:opinionId", async (req, res) => {
+    try {
+        const params = req.params;
+
+        // 1) Buscar película por slug
+        const pelicula = await Movie.findOne({ slug: params.slug });
+        if (!pelicula) {
+            res.status(404).send("Película no encontrada");
+            return;
+        }
+
+        // 2) Buscar índice de la opinión dentro del array
+        const index = pelicula.opiniones.findIndex(
+            op => String(op._id) === String(params.opinionId)
+        );
+
+        if (index === -1) {
+            res.status(404).send("Opinión no encontrada");
+            return;
+        }
+
+        // 3) Eliminar la opinión del array
+        pelicula.opiniones.splice(index, 1);
+
+        // 4) Recalcular rating general
+        let cantidad = pelicula.opiniones.length;
+
+        if (cantidad === 0) {
+            pelicula.rating = 0; // si no quedan opiniones, rating en 0
+        } else {
+            let suma = 0;
+            for (let i = 0; i < cantidad; i++) {
+                suma = suma + pelicula.opiniones[i].rating;
+            }
+            pelicula.rating = suma / cantidad;
+        }
+
+        // 5) Guardar cambios
+        await pelicula.save();
+
+        res.send("Opinión eliminada con éxito");
+
+    } catch (e) {
+        console.log(e);
+        res.status(500).send("Error eliminando opinión");
+    }
+});
 
 
 
