@@ -1,9 +1,11 @@
 const username = localStorage.getItem("username");
 const userId = localStorage.getItem("userId");
+const API_BASE = "http://localhost:3000"; // ⚠️ cambiar a Render al subir
 
+// Mostrar el username arriba
 document.getElementById("username").textContent = username;
 
-// Logout
+// Botón de logout
 document.getElementById("iconLogout").addEventListener("click", () => {
   localStorage.clear();
   window.location.href = "index.html";
@@ -11,13 +13,16 @@ document.getElementById("iconLogout").addEventListener("click", () => {
 
 const contenedor = document.getElementById("opinionesList");
 
+// Si no hay user logueado
 if (!userId) {
   contenedor.innerHTML = "<p style='color:white;'>No estás logueado.</p>";
 } else {
-  // Traer opiniones del usuario
-  fetch(`https://obligatorio-2-jpi9.onrender.com/opiniones/${userId}`)
+  // Traer todas las opiniones del usuario
+  fetch(`${API_BASE}/users/${userId}/opiniones`)
     .then(res => res.json())
-    .then(opiniones => {
+    .then(data => {
+      const opiniones = data.opiniones;
+
       if (!Array.isArray(opiniones) || opiniones.length === 0) {
         contenedor.innerHTML = "<p style='color:white;'>Todavía no escribiste opiniones.</p>";
         return;
@@ -26,49 +31,55 @@ if (!userId) {
       opiniones.forEach(op => {
         const div = document.createElement("div");
         div.className = "opinion";
+
         div.innerHTML = `
-          <div>
-            <span class="autor">${op.movieTitle}</span>
-            <p>${op.text}</p>
+          <div class="opinionInfo">
+            <h3 class="movieTitle">${op.movieTitle}</h3>
+            <p class="comment">${op.comment}</p>
             <span class="rating">★ ${op.rating}/5</span>
           </div>
-          <div>
-            <button class="editBtn" data-id="${op._id}">✏️</button>
-            <button class="deleteBtn" data-id="${op._id}">🗑️</button>
+          <div class="opinionActions">
+            <button class="editBtn" data-slug="${op.movieSlug}" data-id="${op.opinionId}">✏️</button>
+            <button class="deleteBtn" data-slug="${op.movieSlug}" data-id="${op.opinionId}">🗑️</button>
           </div>
         `;
+
         contenedor.appendChild(div);
       });
 
-      // Borrar opinión
+      // --- BORRAR OPINIÓN ---
       document.querySelectorAll(".deleteBtn").forEach(btn => {
         btn.addEventListener("click", () => {
-          const id = btn.dataset.id;
+          const opinionId = btn.dataset.id;
+          const slug = btn.dataset.slug;
+
           if (confirm("¿Seguro que querés borrar esta opinión?")) {
-            fetch(`https://obligatorio-2-jpi9.onrender.com/opiniones/${id}`, {
+            fetch(`${API_BASE}/movies/${slug}/opiniones/${opinionId}`, {
               method: "DELETE"
             })
               .then(res => {
-                if (res.ok) {
-                  location.reload();
-                } else {
-                  alert("Error al borrar opinión");
-                }
+                if (!res.ok) throw new Error("Error al borrar la opinión");
+                alert("Opinión eliminada con éxito");
+                btn.closest(".opinion").remove();
+              })
+              .catch(err => {
+                console.error(err);
+                alert("Error al borrar la opinión");
               });
           }
         });
       });
 
-      // Editar (simplificado: redirigir a detalle)
+      // --- EDITAR OPINIÓN (redirección al detalle por ahora) ---
       document.querySelectorAll(".editBtn").forEach(btn => {
         btn.addEventListener("click", () => {
-          const id = btn.dataset.id;
-          alert("Editar aún no implementado. Podés editar en el detalle de la película.");
+          const slug = btn.dataset.slug;
+          window.location.href = `detalle.html?slug=${slug}`;
         });
       });
     })
     .catch(err => {
-      console.error("Error:", err);
+      console.error("Error cargando opiniones:", err);
       contenedor.innerHTML = "<p style='color:white;'>Error al cargar tus opiniones.</p>";
     });
 }
