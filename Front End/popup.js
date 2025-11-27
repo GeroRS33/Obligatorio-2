@@ -1,7 +1,6 @@
 
 
 
-console.log(usuario);
 
 
 document.addEventListener('DOMContentLoaded', () => {

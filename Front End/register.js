@@ -13,6 +13,7 @@ btnRegistrar.addEventListener("click", async () => {
   if (!username || !password) {
     formError.textContent = "No dejes ningún campo vacío";
     formError.style.color = "red";
+    formError.style.display = "block";
     return;
   }
 
@@ -32,25 +33,29 @@ btnRegistrar.addEventListener("click", async () => {
         formError.textContent = "Error de conexión";
       }
       formError.style.color = "red";
+      formError.style.display = "block";
       return;
     }
 
     const data = await response.json();
 
-    // Guardar usuario en localStorage
+    // Guardar en localStorage por si querés usar luego
     localStorage.setItem("username", data.username);
     localStorage.setItem("userId", data.userId);
 
-    // Redirigir al home
-    window.location.href = "index.html";
+    // Mostrar éxito y redirigir
+    formError.textContent = "¡Usuario registrado con éxito!";
+    formError.style.color = "green";
+    formError.style.display = "block";
+
+    setTimeout(() => {
+      window.location.href = "index.html"; // redirige al login
+    }, 1500);
+
   } catch (error) {
     console.error("Error al registrar:", error);
     formError.textContent = "Error inesperado. Intenta más tarde.";
     formError.style.color = "red";
+    formError.style.display = "block";
   }
-});
-
-// Evento: click en "volver"
-btnVolver.addEventListener("click", () => {
-  window.location.href = "index.html";
 });
