@@ -40,12 +40,17 @@ app.get("/movies/:slug/detalle", async (req, res) => {
 
       const pelicula = await Movie.findOne({ slug: params.slug });
   
-      if (!pelicula) {
+    if (!pelicula) {
         res.status(404).send("Película no encontrada");
         return;
       }
-  
-      res.json(pelicula);
+
+    
+    recalcularRatingPelicula(pelicula);
+    await pelicula.save();
+
+    res.json(pelicula);
+
     } catch (e) {
       console.log(e);
       res.status(500).send("Error obteniendo detalles de la película");
@@ -54,44 +59,69 @@ app.get("/movies/:slug/detalle", async (req, res) => {
 
 
 
-// agregar una opinión a una película
-app.post("/movies/:slug/opinion", async (req, res) => {
-    try {
-        const params = req.params
-        const body = req.body
-
-        const userId = body.userId
-        const username = body.username
-        const rating = body.rating
-        const comment = body.comment
-
-        if (!userId || !username || !rating || !comment) {
-            res.status(400).send("Faltan datos para la opinión")
-            return
-        }
-
-        const pelicula = await Movie.findOne({ slug: params.slug })
-        if (!pelicula) {
-            res.status(404).send("Película no encontrada")
-            return
-        }
-
-        pelicula.opiniones.push({
-            userId: userId,
-            username: username,
-            rating: rating,
-            comment: comment
-        })
-
-        await pelicula.save()
-
-        res.send("Opinión agregada con éxito")
-
-    } catch (e) {
-        console.log(e)
-        res.status(500).send("Error agregando opinión")
+function recalcularRatingPelicula(pelicula) {
+    if (!pelicula.opiniones || pelicula.opiniones.length === 0) {
+      pelicula.rating = 0;
+      return;
     }
-})
+  
+    let suma = 0;
+    let cantidad = pelicula.opiniones.length;
+  
+    for (let i = 0; i < cantidad; i++) {
+      suma += pelicula.opiniones[i].rating;
+    }
+  
+    pelicula.rating = suma / cantidad;
+
+    console.log("Se recalculó el Rating brotherrrr");
+  }
+  
+  
+  // =================== AGREGAR OPINIÓN ===================
+  app.post("/movies/:slug/opinion", async (req, res) => {
+    try {
+      const { slug } = req.params;
+      const { userId, username, rating, comment } = req.body;
+  
+      // Validaciones básicas
+      if (!userId || !username || !rating || !comment) {
+        res.status(400).send("Faltan datos para la opinión");
+        return;
+      }
+  
+      const ratingNum = Number(rating);
+      if (isNaN(ratingNum) || ratingNum < 1 || ratingNum > 5) {
+        res.status(400).send("El rating debe estar entre 1 y 5");
+        return;
+      }
+  
+      const pelicula = await Movie.findOne({ slug });
+      if (!pelicula) {
+        res.status(404).send("Película no encontrada");
+        return;
+      }
+  
+      // Agregar la nueva opinión
+      pelicula.opiniones.push({
+        userId,
+        username,
+        rating: ratingNum,
+        comment,
+      });
+
+      recalcularRatingPelicula(pelicula);
+  
+      // Guardar en base de datos
+      await pelicula.save();
+  
+      res.send("Opinión agregada con éxito");
+  
+    } catch (e) {
+      console.error(e);
+      res.status(500).send("Error agregando opinión");
+    }
+  });
 
 
 app.post("/register", async (req, res) => {
@@ -190,85 +220,6 @@ app.get("/movies/:slug/opiniones", async (req, res) => {
 })
 
 
-// agregar una opinión a una película
-app.post("/movies/:slug/opinion", async (req, res) => {
-    try {
-        const params = req.params
-        const body = req.body
-
-        const userId = body.userId
-        const username = body.username
-        const rating = Number(body.rating)
-        const comment = body.comment
-
-        if (!userId || !username || !rating || !comment) {
-            res.status(400).send("Faltan datos para la opinión")
-            return
-        }
-
-        if (rating < 1 || rating > 5) {
-            res.status(400).send("El rating debe estar entre 1 y 5")
-            return
-        }
-
-        if (comment.length < 5) {
-            res.status(400).send("El comentario es muy corto")
-            return
-        }
-        if (comment.length > 500) {
-            res.status(400).send("El comentario es muy largo")
-            return
-        }
-
-        const usuario = await User.findById(userId)
-        if (!usuario) {
-            res.status(400).send("Usuario inválido")
-            return
-        }
-
-        // Buscar película por slug
-        const pelicula = await Movie.findOne({ slug: params.slug })
-        if (!pelicula) {
-            res.status(404).send("Película no encontrada")
-            return
-        }
-
-
-
-        // Agregar la nueva opinión
-        pelicula.opiniones.push({
-            userId: userId,
-            username: username,
-            rating: rating,
-            comment: comment
-        })
-
-        // 🔹 Recalcular rating general (promedio) – versión Programación 1
-        let suma = 0
-        let cantidad = pelicula.opiniones.length
-
-        for (let i = 0; i < cantidad; i++) {
-            suma = suma + pelicula.opiniones[i].rating
-        }
-
-        let promedio = suma / cantidad
-        pelicula.rating = promedio
-
-        await pelicula.save() 
-
-        res.send("Opinión agregada con éxito")
-
-    } catch (e) {
-        console.log(e)
-        res.status(500).send("Error agregando opinión")
-    }
-})
-
-
-
-
-
-
 // Obtener todas las opiniones de un usuario (Mis críticas)
 app.get("/users/:userId/opiniones", async (req, res) => {
     try {
@@ -348,16 +299,8 @@ app.put("/movies/:slug/opiniones/:opinionId", async (req, res) => {
         opinion.rating = rating
         opinion.comment = comment
 
-        // 🔹 Recalcular rating general (promedio) – versión Programación 1
-        let suma = 0
-        let cantidad = pelicula.opiniones.length
-
-        for (let i = 0; i < cantidad; i++) {
-            suma = suma + pelicula.opiniones[i].rating
-        }
-
-        let promedio = suma / cantidad
-        pelicula.rating = promedio
+        // 🔹 Recalcular rating general usando helper
+        recalcularRatingPelicula(pelicula);
 
         // Guardar cambios
         await pelicula.save()
@@ -382,7 +325,6 @@ app.delete("/movies/:slug/opiniones/:opinionId", async (req, res) => {
             return;
         }
 
-        // 2) Buscar índice de la opinión dentro del array
         const index = pelicula.opiniones.findIndex(
             op => String(op._id) === String(params.opinionId)
         );
@@ -391,24 +333,13 @@ app.delete("/movies/:slug/opiniones/:opinionId", async (req, res) => {
             res.status(404).send("Opinión no encontrada");
             return;
         }
-
-        // 3) Eliminar la opinión del array
         pelicula.opiniones.splice(index, 1);
 
-        // 4) Recalcular rating general
+
         let cantidad = pelicula.opiniones.length;
 
-        if (cantidad === 0) {
-            pelicula.rating = 0; // si no quedan opiniones, rating en 0
-        } else {
-            let suma = 0;
-            for (let i = 0; i < cantidad; i++) {
-                suma = suma + pelicula.opiniones[i].rating;
-            }
-            pelicula.rating = suma / cantidad;
-        }
+        recalcularRatingPelicula(pelicula);
 
-        // 5) Guardar cambios
         await pelicula.save();
 
         res.send("Opinión eliminada con éxito");

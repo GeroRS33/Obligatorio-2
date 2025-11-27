@@ -22,6 +22,9 @@ if (!slug) {
       const estrellasNum = Math.round(pelicula.rating || 0);
       estrellas.textContent = "★".repeat(estrellasNum) + "☆".repeat(5 - estrellasNum);
       
+      if (typeof window.actualizarRating === "function") {
+        window.actualizarRating();
+      }
 
       
       const titulo = document.querySelector(".tituloDetalle");
@@ -51,6 +54,41 @@ if (!slug) {
       document.body.innerHTML = "<p style='color:white;'>Error al cargar la película.</p>";
     });
 }
+
+// ===================== ACTUALIZAR RATING =====================
+function actualizarRating() {
+  if (!slug) {
+    console.error("No hay slug para actualizar el rating");
+    return;
+  }
+
+  fetch(`https://obligatorio-2-jpi9.onrender.com/movies/${slug}/detalle`)
+    .then(res => {
+      if (!res.ok) throw new Error("Error al obtener los detalles de la película");
+      return res.json();
+    })
+    .then(pelicula => {
+      const estrellas = document.querySelector(".estrellas");
+      if (!estrellas) return;
+
+      // calcula cantidad de estrellas llenas
+      const estrellasNum = Math.round(pelicula.rating || 0);
+
+      // versión simple, sin .repeat()
+      let textoEstrellas = "";
+      for (let i = 0; i < 5; i++) {
+        textoEstrellas += i < estrellasNum ? "★" : "☆";
+      }
+
+      estrellas.textContent = textoEstrellas;
+    })
+    .catch(err => {
+      console.error("Error actualizando rating:", err);
+    });
+}
+
+// Exportamos para poder llamarla desde popup.js
+window.actualizarRating = actualizarRating;
 
 
 

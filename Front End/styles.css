@@ -35,7 +35,6 @@ body {
   justify-content: space-between;
   padding: 0 24px;
   box-shadow: var(--sombra);
-  position: fixed;
 }
 
 .logoheader img {
