@@ -1,6 +1,6 @@
 // opiniones.js
 
-const API_BASE = "https://obligatorio-2-jpi9.onrender.com"; // si usás Render, cambiá esto luego
+const API_BASE = "https://obligatorio-2-jpi9.onrender.com"; // Cambiá a tu URL de Render cuando subas
 
 document.addEventListener("DOMContentLoaded", () => {
   const username = localStorage.getItem("username");
@@ -21,11 +21,23 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   const contenedor = document.getElementById("opinionesList");
-
   if (!contenedor) {
-    console.error("No se encontró el contenedor de opiniones (#opinionesList)");
+    console.error("No se encontró #opinionesList");
     return;
   }
+
+  // ======== REFERENCIAS DEL POPUP EDITAR ========
+  const popupEditar = document.getElementById("popupEditar");
+  const textareaEditar = document.getElementById("textareaEditar");
+  const btnGuardarEdicion = document.getElementById("btnGuardarEdicion");
+  const starsContainer = document.getElementById("starsEditar");
+  const starsEditar = starsContainer ? starsContainer.querySelectorAll("span") : [];
+  const tituloPeliculaSpan = document.querySelector("#popupEditar .tituloPelicula");
+
+  let selectedRatingEditar = 0;
+  let opinionIdActual = null;
+  let slugActual = null;
+  let botonEditActual = null; // para actualizar el DOM luego
 
   if (!userId) {
     contenedor.innerHTML = "<p style='color:white;'>No estás logueado.</p>";
@@ -43,7 +55,6 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      // Pintar cada opinión
       opiniones.forEach(op => {
         const div = document.createElement("div");
         div.className = "opinion";
@@ -64,6 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
               data-slug="${op.movieSlug}"
               data-comment="${op.comment.replace(/"/g, '&quot;')}"
               data-rating="${op.rating}"
+              data-movie-title="${op.movieTitle.replace(/"/g, '&quot;')}"
             >
               ✏️
             </button>
@@ -85,7 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const deleteButtons = document.querySelectorAll(".deleteBtn");
       deleteButtons.forEach(btn => {
         btn.addEventListener("click", (event) => {
-          event.preventDefault();  // por si está dentro de un <a>
+          event.preventDefault();
           event.stopPropagation();
 
           const opinionId = btn.dataset.id;
@@ -107,46 +119,107 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       });
 
-      // ================== EDITAR OPINIÓN (RATING + COMENTARIO) ==================
+      // ================== EDITAR OPINIÓN (POPUP) ==================
       const editButtons = document.querySelectorAll(".editBtn");
       editButtons.forEach(btn => {
         btn.addEventListener("click", (event) => {
+          event.preventDefault();
           event.stopPropagation();
 
-          const opinionId = btn.dataset.id;
-          const slug = btn.dataset.slug;
+          opinionIdActual = btn.dataset.id;
+          slugActual = btn.dataset.slug;
+          botonEditActual = btn;
+
           const oldComment = btn.dataset.comment;
           const oldRating = Number(btn.dataset.rating);
+          const movieTitle = btn.dataset["movieTitle"];
 
-          // 1) Pedir nuevo rating
-          let nuevoRatingStr = prompt("Editar rating (1 a 5):", oldRating);
-          if (nuevoRatingStr === null) return; // canceló
+          // Setear título en el popup
+          if (tituloPeliculaSpan) {
+            tituloPeliculaSpan.textContent = movieTitle || "";
+          }
 
-          nuevoRatingStr = nuevoRatingStr.trim();
-          const nuevoRating = Number(nuevoRatingStr);
+          // Setear textarea con comentario viejo
+          if (textareaEditar) {
+            textareaEditar.value = oldComment || "";
+          }
 
-          if (isNaN(nuevoRating) || nuevoRating < 1 || nuevoRating > 5) {
-            alert("El rating debe ser un número entre 1 y 5.");
+          // Setear estrellas con rating viejo
+          selectedRatingEditar = oldRating || 0;
+          actualizarEstrellasEditar();
+
+          // Mostrar popup
+          if (popupEditar) {
+            popupEditar.style.display = "flex";
+          }
+        });
+      });
+
+      // ======= CLIC FUERA DEL POPUP PARA CERRAR =======
+      if (popupEditar) {
+        popupEditar.addEventListener("click", (e) => {
+          if (e.target === popupEditar) {
+            cerrarPopupEditar();
+          }
+        });
+      }
+
+      // ======= SELECCIÓN DE ESTRELLAS EN POPUP EDITAR =======
+      for (let i = 0; i < starsEditar.length; i++) {
+        starsEditar[i].addEventListener("click", () => {
+          selectedRatingEditar = i + 1;
+          actualizarEstrellasEditar();
+        });
+      }
+
+      function actualizarEstrellasEditar() {
+        for (let j = 0; j < starsEditar.length; j++) {
+          if (j < selectedRatingEditar) {
+            starsEditar[j].classList.add("active");
+          } else {
+            starsEditar[j].classList.remove("active");
+          }
+        }
+      }
+
+      function cerrarPopupEditar() {
+        if (popupEditar) {
+          popupEditar.style.display = "none";
+        }
+        opinionIdActual = null;
+        slugActual = null;
+        botonEditActual = null;
+        selectedRatingEditar = 0;
+        if (textareaEditar) textareaEditar.value = "";
+        actualizarEstrellasEditar();
+      }
+
+      // ======= GUARDAR CAMBIOS (PUT) =======
+      if (btnGuardarEdicion) {
+        btnGuardarEdicion.addEventListener("click", () => {
+          if (!opinionIdActual || !slugActual) {
+            alert("Error interno: falta opinión o película.");
             return;
           }
 
-          // 2) Pedir nuevo comentario
-          const nuevoComentario = prompt("Editar tu opinión:", oldComment);
-          if (nuevoComentario === null) return; // canceló
-
-          if (nuevoComentario.trim().length < 5) {
+          const nuevoComentario = textareaEditar.value.trim();
+          if (nuevoComentario.length < 5) {
             alert("El comentario debe tener al menos 5 caracteres.");
             return;
           }
 
-          // 3) Enviar PUT al backend
-          fetch(`${API_BASE}/movies/${slug}/opiniones/${opinionId}`, {
+          if (selectedRatingEditar < 1 || selectedRatingEditar > 5) {
+            alert("El rating debe estar entre 1 y 5 estrellas.");
+            return;
+          }
+
+          fetch(`${API_BASE}/movies/${slugActual}/opiniones/${opinionIdActual}`, {
             method: "PUT",
             headers: {
               "Content-Type": "application/json"
             },
             body: JSON.stringify({
-              rating: nuevoRating,
+              rating: selectedRatingEditar,
               comment: nuevoComentario
             })
           })
@@ -157,24 +230,30 @@ document.addEventListener("DOMContentLoaded", () => {
             .then(msg => {
               console.log("Opinión editada:", msg);
 
-              // 4) Actualizar HTML sin recargar
-              const opinionDiv = btn.closest(".opinion");
-              const pComment = opinionDiv.querySelector(".comment");
-              const spanRatingValue = opinionDiv.querySelector(".ratingValue");
+              // Actualizar DOM
+              if (botonEditActual) {
+                const opinionDiv = botonEditActual.closest(".opinion");
+                if (opinionDiv) {
+                  const pComment = opinionDiv.querySelector(".comment");
+                  const spanRatingValue = opinionDiv.querySelector(".ratingValue");
 
-              pComment.textContent = nuevoComentario;
-              spanRatingValue.textContent = nuevoRating;
+                  if (pComment) pComment.textContent = nuevoComentario;
+                  if (spanRatingValue) spanRatingValue.textContent = selectedRatingEditar;
+                }
 
-              // Actualizar data-* para futuras ediciones
-              btn.dataset.comment = nuevoComentario;
-              btn.dataset.rating = nuevoRating;
+                // Actualizar data-* del botón para futuras ediciones
+                botonEditActual.dataset.comment = nuevoComentario;
+                botonEditActual.dataset.rating = selectedRatingEditar;
+              }
+
+              cerrarPopupEditar();
             })
             .catch(err => {
               console.error(err);
               alert("Error al editar la opinión");
             });
         });
-      });
+      }
     })
     .catch(err => {
       console.error("Error cargando opiniones:", err);
