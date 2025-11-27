@@ -1,36 +1,56 @@
 // Elementos del DOM
 const inputNombre = document.getElementById("inputNombreReg");
-const inputMail = document.getElementById("inputMailReg");
 const inputContraseña = document.getElementById("inputContraseñaReg");
 const btnRegistrar = document.getElementById("registrarUser");
 const formError = document.getElementById("formErrorReg");
-const btnVolver = document.getElementById("volverBtnLogin");
+const btnVolver = document.getElementById("volverBtn");
 
-// Al hacer clic en "Registrarme"
-btnRegistrar.addEventListener("click", () => {
-  const nombre = inputNombre.value.trim();
-  const mail = inputMail.value.trim();
-  const contraseña = inputContraseña.value.trim();
+// Evento: click en "Registrarme"
+btnRegistrar.addEventListener("click", async () => {
+  const username = inputNombre.value.trim();
+  const password = inputContraseña.value.trim();
 
-  if (!nombre || !mail || !contraseña) {
+  if (!username || !password) {
     formError.textContent = "No dejes ningún campo vacío";
     formError.style.color = "red";
     return;
   }
 
-  // Acá podrías enviar al backend si tuvieras uno activo
-  console.log("Usuario registrado:", { nombre, mail, contraseña });
+  try {
+    const response = await fetch("https://obligatorio-2-jpi9.onrender.com/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password })
+    });
 
-  // Mensaje de éxito y redirección al login
-  formError.textContent = "¡Usuario registrado con éxito!";
-  formError.style.color = "green";
+    if (!response.ok) {
+      if (response.status === 409) {
+        formError.textContent = "El usuario ya existe";
+      } else if (response.status === 400) {
+        formError.textContent = "Faltan datos";
+      } else {
+        formError.textContent = "Error de conexión";
+      }
+      formError.style.color = "red";
+      return;
+    }
 
-  setTimeout(() => {
-    window.location.href = "index.html"; // Volver al login
-  }, 1500);
+    const data = await response.json();
+
+    // Guardar usuario en localStorage
+    localStorage.setItem("username", data.username);
+    localStorage.setItem("userId", data.userId);
+
+    // Redirigir al home
+    window.location.href = "index.html";
+  } catch (error) {
+    console.error("Error al registrar:", error);
+    formError.textContent = "Error inesperado. Intenta más tarde.";
+    formError.style.color = "red";
+  }
 });
 
-// Al hacer clic en "volver"
+// Evento: click en "volver"
 btnVolver.addEventListener("click", () => {
   window.location.href = "index.html";
 });
