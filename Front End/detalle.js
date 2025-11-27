@@ -47,3 +47,11 @@ if (!slug) {
       document.body.innerHTML = "<p style='color:white;'>Error al cargar la película.</p>";
     });
 }
+
+// ========== MOSTRAR NOMBRE DE USUARIO EN HEADER ==========
+const username = localStorage.getItem("username");
+
+if (username) {
+  const spanUsername = document.getElementById("username");
+  spanUsername.textContent = username;
+}
