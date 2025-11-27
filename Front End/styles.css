@@ -534,6 +534,29 @@ main {
   height: 28px;
 }
 
+/* ========== POPUP ELIMINAR ========== */
+.popupEliminarContent {
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.popupEliminarBotones {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
+/* Botón rojo de eliminar */
+.btn-danger {
+  background-color: #d9534f;
+}
+
+.btn-danger:hover {
+  background-color: #c9302c;
+}
+
+
 @media (max-width: 768px) {
 
   .headerClap {
