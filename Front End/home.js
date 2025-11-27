@@ -3,9 +3,8 @@ const arrowLeft = document.getElementById('arrowLeft');
 const arrowRight = document.getElementById('arrowRight');
 const buscador = document.getElementById('buscador');
 
-let todasLasPeliculas = []; // ← Acá vamos a guardar todas
+let todasLasPeliculas = [];
 
-// Scroll del carrusel
 const scrollStep = 300;
 arrowLeft.addEventListener('click', () => {
   carousel.scrollBy({ left: -scrollStep, behavior: 'smooth' });
@@ -14,7 +13,7 @@ arrowRight.addEventListener('click', () => {
   carousel.scrollBy({ left: scrollStep, behavior: 'smooth' });
 });
 
-// Función para renderizar películas
+// function para renderizar películas
 function renderizarPeliculas(peliculas) {
   carousel.innerHTML = ''; // Vacía el carrusel
 

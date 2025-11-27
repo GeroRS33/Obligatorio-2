@@ -1,6 +1,6 @@
 // opiniones.js
 
-const API_BASE = "https://obligatorio-2-jpi9.onrender.com"; // Cambiá a tu URL de Render cuando subas
+const API_BASE = "https://obligatorio-2-jpi9.onrender.com";
 
 document.addEventListener("DOMContentLoaded", () => {
   const username = localStorage.getItem("username");
@@ -8,10 +8,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const usernameSpan = document.getElementById("username");
   if (usernameSpan) {
-    usernameSpan.textContent = username || "Usuario";
+    usernameSpan.textContent = username || "usuario";
   }
 
-  // Logout
   const iconLogout = document.getElementById("iconLogout");
   if (iconLogout) {
     iconLogout.addEventListener("click", () => {
@@ -22,11 +21,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const contenedor = document.getElementById("opinionesList");
   if (!contenedor) {
-    console.error("No se encontró #opinionesList");
+    console.error("no se encontró #opinionesList");
     return;
   }
 
-  // ======== REFERENCIAS DEL POPUP EDITAR ========
+  // referencias del popup editar
   const popupEditar = document.getElementById("popupEditar");
   const textareaEditar = document.getElementById("textareaEditar");
   const btnGuardarEdicion = document.getElementById("btnGuardarEdicion");
@@ -37,21 +36,21 @@ document.addEventListener("DOMContentLoaded", () => {
   let selectedRatingEditar = 0;
   let opinionIdActual = null;
   let slugActual = null;
-  let botonEditActual = null; // para actualizar el DOM luego
+  let botonEditActual = null;
 
   if (!userId) {
-    contenedor.innerHTML = "<p style='color:white;'>No estás logueado.</p>";
+    contenedor.innerHTML = "<p style='color:white;'>no estás logueado.</p>";
     return;
   }
 
-  // ================== TRAER OPINIONES DEL USUARIO ==================
+  // traer opiniones del usuario
   fetch(`${API_BASE}/users/${userId}/opiniones`)
     .then(res => res.json())
     .then(data => {
       const opiniones = data.opiniones;
 
       if (!Array.isArray(opiniones) || opiniones.length === 0) {
-        contenedor.innerHTML = "<p style='color:white;'>Todavía no escribiste opiniones.</p>";
+        contenedor.innerHTML = "<p style='color:white;'>todavía no escribiste opiniones.</p>";
         return;
       }
 
@@ -93,7 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
         contenedor.appendChild(div);
       });
 
-      // ================== BORRAR OPINIÓN ==================
+      // borrar opinión
       const deleteButtons = document.querySelectorAll(".deleteBtn");
       deleteButtons.forEach(btn => {
         btn.addEventListener("click", (event) => {
@@ -103,23 +102,23 @@ document.addEventListener("DOMContentLoaded", () => {
           const opinionId = btn.dataset.id;
           const slug = btn.dataset.slug;
 
-          if (!confirm("¿Seguro que querés borrar esta opinión?")) return;
+          if (!confirm("¿seguro que querés borrar esta opinión?")) return;
 
           fetch(`${API_BASE}/movies/${slug}/opiniones/${opinionId}`, {
             method: "DELETE"
           })
             .then(res => {
-              if (!res.ok) throw new Error("Error al borrar opinión");
+              if (!res.ok) throw new Error("error al borrar opinión");
               btn.closest(".opinion").remove();
             })
             .catch(err => {
               console.error(err);
-              alert("Error al borrar la opinión");
+              alert("error al borrar la opinión");
             });
         });
       });
 
-      // ================== EDITAR OPINIÓN (POPUP) ==================
+      // editar opinión (popup)
       const editButtons = document.querySelectorAll(".editBtn");
       editButtons.forEach(btn => {
         btn.addEventListener("click", (event) => {
@@ -134,28 +133,24 @@ document.addEventListener("DOMContentLoaded", () => {
           const oldRating = Number(btn.dataset.rating);
           const movieTitle = btn.dataset["movieTitle"];
 
-          // Setear título en el popup
           if (tituloPeliculaSpan) {
             tituloPeliculaSpan.textContent = movieTitle || "";
           }
 
-          // Setear textarea con comentario viejo
           if (textareaEditar) {
             textareaEditar.value = oldComment || "";
           }
 
-          // Setear estrellas con rating viejo
           selectedRatingEditar = oldRating || 0;
           actualizarEstrellasEditar();
 
-          // Mostrar popup
           if (popupEditar) {
             popupEditar.style.display = "flex";
           }
         });
       });
 
-      // ======= CLIC FUERA DEL POPUP PARA CERRAR =======
+      // cerrar popup haciendo clic fuera
       if (popupEditar) {
         popupEditar.addEventListener("click", (e) => {
           if (e.target === popupEditar) {
@@ -164,7 +159,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
 
-      // ======= SELECCIÓN DE ESTRELLAS EN POPUP EDITAR =======
+      // selección de estrellas en popup editar
       for (let i = 0; i < starsEditar.length; i++) {
         starsEditar[i].addEventListener("click", () => {
           selectedRatingEditar = i + 1;
@@ -194,22 +189,22 @@ document.addEventListener("DOMContentLoaded", () => {
         actualizarEstrellasEditar();
       }
 
-      // ======= GUARDAR CAMBIOS (PUT) =======
+      // guardar cambios (put)
       if (btnGuardarEdicion) {
         btnGuardarEdicion.addEventListener("click", () => {
           if (!opinionIdActual || !slugActual) {
-            alert("Error interno: falta opinión o película.");
+            alert("error interno: falta opinión o película.");
             return;
           }
 
           const nuevoComentario = textareaEditar.value.trim();
           if (nuevoComentario.length < 5) {
-            alert("El comentario debe tener al menos 5 caracteres.");
+            alert("el comentario debe tener al menos 5 caracteres.");
             return;
           }
 
           if (selectedRatingEditar < 1 || selectedRatingEditar > 5) {
-            alert("El rating debe estar entre 1 y 5 estrellas.");
+            alert("el rating debe estar entre 1 y 5 estrellas.");
             return;
           }
 
@@ -224,13 +219,10 @@ document.addEventListener("DOMContentLoaded", () => {
             })
           })
             .then(res => {
-              if (!res.ok) throw new Error("Error al editar opinión");
+              if (!res.ok) throw new Error("error al editar opinión");
               return res.text();
             })
-            .then(msg => {
-              console.log("Opinión editada:", msg);
-
-              // Actualizar DOM
+            .then(() => {
               if (botonEditActual) {
                 const opinionDiv = botonEditActual.closest(".opinion");
                 if (opinionDiv) {
@@ -241,7 +233,6 @@ document.addEventListener("DOMContentLoaded", () => {
                   if (spanRatingValue) spanRatingValue.textContent = selectedRatingEditar;
                 }
 
-                // Actualizar data-* del botón para futuras ediciones
                 botonEditActual.dataset.comment = nuevoComentario;
                 botonEditActual.dataset.rating = selectedRatingEditar;
               }
@@ -250,13 +241,13 @@ document.addEventListener("DOMContentLoaded", () => {
             })
             .catch(err => {
               console.error(err);
-              alert("Error al editar la opinión");
+              alert("error al editar la opinión");
             });
         });
       }
     })
     .catch(err => {
-      console.error("Error cargando opiniones:", err);
-      contenedor.innerHTML = "<p style='color:white;'>Error al cargar tus opiniones.</p>";
+      console.error("error cargando opiniones:", err);
+      contenedor.innerHTML = "<p style='color:white;'>error al cargar tus opiniones.</p>";
     });
 });

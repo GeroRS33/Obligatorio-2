@@ -1,11 +1,11 @@
-// Elementos del DOM
+
 const inputNombre = document.getElementById("inputNombreReg");
 const inputContraseña = document.getElementById("inputContraseñaReg");
 const btnRegistrar = document.getElementById("registrarUser");
 const formError = document.getElementById("formErrorReg");
 const btnVolver = document.getElementById("volverBtn");
 
-// Evento: click en "Registrarme"
+// registrarse
 btnRegistrar.addEventListener("click", async () => {
   const username = inputNombre.value.trim();
   const password = inputContraseña.value.trim();
@@ -39,11 +39,11 @@ btnRegistrar.addEventListener("click", async () => {
 
     const data = await response.json();
 
-    // Guardar en localStorage por si querés usar luego
+    // Guardar en localStorage 
     localStorage.setItem("username", data.username);
     localStorage.setItem("userId", data.userId);
 
-    // Mostrar éxito y redirigir
+    // mostrar exxito y redirigir
     formError.textContent = "¡Usuario registrado con éxito!";
     formError.style.color = "green";
     formError.style.display = "block";
