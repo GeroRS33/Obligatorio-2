@@ -1,5 +1,5 @@
 // --------------------------------------------
-// Seleccionamos elementos del HTML (DOM)
+// Elementos
 // --------------------------------------------
 const carousel = document.getElementById('carouselPosters'); // Contenedor de los posters
 const arrowLeft = document.getElementById('arrowLeft');     // Flecha izquierda
@@ -13,7 +13,7 @@ let todasLasPeliculas = [];
 const scrollStep = 300;
 
 // --------------------------------------------
-// Movimiento del carrusel con las flechas
+// Scroll Carrusel
 // --------------------------------------------
 arrowLeft.addEventListener('click', () => {
   carousel.scrollBy({ left: -scrollStep, behavior: 'smooth' }); // Mueve a la izquierda
@@ -23,7 +23,7 @@ arrowRight.addEventListener('click', () => {
 });
 
 // --------------------------------------------
-// Función que muestra las películas en pantalla
+// Mostrar Pelis
 // --------------------------------------------
 function renderizarPeliculas(peliculas) {
   carousel.innerHTML = ''; // Limpiamos el carrusel antes de mostrar
@@ -59,7 +59,7 @@ function renderizarPeliculas(peliculas) {
 }
 
 // --------------------------------------------
-// Cargamos las películas desde el backend
+// cargar peliculas
 // --------------------------------------------
 fetch('https://obligatorio-2-jpi9.onrender.com/movies')
   .then(res => res.json()) // Convertimos la respuesta en formato JSON
@@ -77,7 +77,7 @@ fetch('https://obligatorio-2-jpi9.onrender.com/movies')
   });
 
 // --------------------------------------------
-// Buscador de películas por nombre (input)
+// Buscador de películas
 // --------------------------------------------
 buscador.addEventListener('input', () => {
   const texto = buscador.value.toLowerCase(); // Convertimos a minúsculas
@@ -92,7 +92,7 @@ buscador.addEventListener('input', () => {
 });
 
 // --------------------------------------------
-// Mostrar nombre de usuario en el header
+// Nombre de User en Header
 // --------------------------------------------
 const storedUser = localStorage.getItem('username');
 if (storedUser) {

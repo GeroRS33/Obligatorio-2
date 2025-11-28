@@ -1,28 +1,32 @@
 // 1. Leemos el "slug" (identificador único) desde la URL
+
 const params = new URLSearchParams(window.location.search);
 const slug = params.get("slug"); // Esto busca por ejemplo ?slug=matrix
+
+
 
 // 2. Si no hay slug, mostramos un mensaje de error
 if (!slug) {
   document.body.innerHTML = "<p style='color:white;'>película no encontrada.</p>";
 } else {
-  // 3. Si hay slug, pedimos los datos de esa película desde la API
+  // 3. Si hay slug, pedimos datos
   fetch(`https://obligatorio-2-jpi9.onrender.com/movies/${slug}/detalle`)
-    .then(res => res.json()) // Convertimos la respuesta a JSON
+    .then(res => res.json()) 
     .then(pelicula => {
-      console.error(pelicula); // Para revisar los datos en la consola
+      console.error(pelicula); 
+
 
       // 4. Mostramos la imagen del póster
       const posterImg = document.querySelector(".posterDetalle");
       posterImg.src = pelicula.posterUrl || "img/placeholder.jpg"; // Usamos una imagen por defecto si no hay URL
       posterImg.alt = pelicula.title;
 
-      // 5. Mostramos las estrellas de rating (redondeamos el número)
+      // 5. Mostramos estrellas
       const estrellas = document.querySelector(".estrellas");
       const estrellasNum = Math.round(pelicula.rating || 0);
       estrellas.textContent = "★".repeat(estrellasNum) + "☆".repeat(5 - estrellasNum);
 
-      // 6. Si existe la función actualizarRating, la ejecutamos
+      // 6. Ejecutamos actualizarRating
       if (typeof window.actualizarRating === "function") {
         window.actualizarRating();
       }
@@ -55,7 +59,7 @@ if (!slug) {
 }
 
 // ----------------------------------------------
-// Función para actualizar el rating de estrellas
+// Actualizador de Rating
 // ----------------------------------------------
 function actualizarRating() {
   if (!slug) {
@@ -92,7 +96,7 @@ function actualizarRating() {
 window.actualizarRating = actualizarRating;
 
 // ------------------------------------------------
-// Mostrar el nombre del usuario guardado (localStorage)
+// mostrar el nombre del usuario guardado en localstorage
 // ------------------------------------------------
 const username = localStorage.getItem("username");
 if (username) {

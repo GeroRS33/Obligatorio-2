@@ -1,5 +1,5 @@
 // ===========================================
-// Selección de elementos del formulario (DOM)
+// Elementos
 // ===========================================
 const inputNombre = document.getElementById("inputNombreReg"); // Campo de nombre
 const inputContraseña = document.getElementById("inputContraseñaReg"); // Campo de contraseña
@@ -8,7 +8,7 @@ const formError = document.getElementById("formErrorReg"); // Elemento para most
 const btnVolver = document.getElementById("volverBtn"); // Botón para volver atrás (login)
 
 // ===========================================
-// Evento: al hacer click en "Registrarse"
+// Registrarse 
 // ===========================================
 btnRegistrar.addEventListener("click", async () => {
   // Leemos los valores de los campos y quitamos espacios
@@ -62,7 +62,7 @@ btnRegistrar.addEventListener("click", async () => {
     // Redirigimos al login después de 1.5 segundos
     setTimeout(() => {
       window.location.href = "index.html";
-    }, 1500);
+    }, 1000);
 
   } catch (error) {
     // Si hubo un error inesperado (por ejemplo, no hay conexión)
