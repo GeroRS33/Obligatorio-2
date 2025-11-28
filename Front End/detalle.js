@@ -1,27 +1,33 @@
-// leer slug de la url
+// 1. Leemos el "slug" (identificador único) desde la URL
 const params = new URLSearchParams(window.location.search);
-const slug = params.get("slug");
+const slug = params.get("slug"); // Esto busca por ejemplo ?slug=matrix
 
+// 2. Si no hay slug, mostramos un mensaje de error
 if (!slug) {
   document.body.innerHTML = "<p style='color:white;'>película no encontrada.</p>";
 } else {
+  // 3. Si hay slug, pedimos los datos de esa película desde la API
   fetch(`https://obligatorio-2-jpi9.onrender.com/movies/${slug}/detalle`)
-    .then(res => res.json())
+    .then(res => res.json()) // Convertimos la respuesta a JSON
     .then(pelicula => {
-      console.error(pelicula);
+      console.error(pelicula); // Para revisar los datos en la consola
 
+      // 4. Mostramos la imagen del póster
       const posterImg = document.querySelector(".posterDetalle");
-      posterImg.src = pelicula.posterUrl || "img/placeholder.jpg";
+      posterImg.src = pelicula.posterUrl || "img/placeholder.jpg"; // Usamos una imagen por defecto si no hay URL
       posterImg.alt = pelicula.title;
 
+      // 5. Mostramos las estrellas de rating (redondeamos el número)
       const estrellas = document.querySelector(".estrellas");
       const estrellasNum = Math.round(pelicula.rating || 0);
       estrellas.textContent = "★".repeat(estrellasNum) + "☆".repeat(5 - estrellasNum);
 
+      // 6. Si existe la función actualizarRating, la ejecutamos
       if (typeof window.actualizarRating === "function") {
         window.actualizarRating();
       }
 
+      // 7. Mostramos el título de la película y el año
       const titulo = document.querySelector(".tituloDetalle");
       const añoSpan = document.createElement("span");
       añoSpan.className = "año";
@@ -29,13 +35,16 @@ if (!slug) {
       titulo.textContent = pelicula.title + " ";
       titulo.appendChild(añoSpan);
 
+      // 8. Mostramos el nombre del director
       const director = document.querySelector(".director a");
       director.textContent = pelicula.director || "Cargando...";
-      director.href = "#";
+      director.href = "#"; // En este caso no lleva link real
 
+      // 9. Mostramos género y sinopsis
       document.querySelector(".generos").textContent = "Genres: " + (pelicula.genero || "N/A");
       document.querySelector(".sinopsis em").textContent = pelicula.synopsis || "Cargando....";
 
+      // 10. Mostramos datos también en el popup
       document.querySelector("#popup img").src = pelicula.posterUrl || "img/placeholder.jpg";
       document.querySelector(".popupcontent h2").innerHTML = `${pelicula.title} <span class="anio">${pelicula.year}</span>`;
     })
@@ -45,13 +54,16 @@ if (!slug) {
     });
 }
 
-// actualizar rating
+// ----------------------------------------------
+// Función para actualizar el rating de estrellas
+// ----------------------------------------------
 function actualizarRating() {
   if (!slug) {
     console.error("no hay slug para actualizar el rating");
     return;
   }
 
+  // Pedimos nuevamente los datos de la película
   fetch(`https://obligatorio-2-jpi9.onrender.com/movies/${slug}/detalle`)
     .then(res => {
       if (!res.ok) throw new Error("error al obtener los detalles de la película");
@@ -61,6 +73,7 @@ function actualizarRating() {
       const estrellas = document.querySelector(".estrellas");
       if (!estrellas) return;
 
+      // Recalculamos cuántas estrellas mostrar
       const estrellasNum = Math.round(pelicula.rating || 0);
 
       let textoEstrellas = "";
@@ -75,24 +88,31 @@ function actualizarRating() {
     });
 }
 
+// Hacemos que la función se pueda llamar desde otras partes
 window.actualizarRating = actualizarRating;
 
-// mostrar nombre de usuario en header
+// ------------------------------------------------
+// Mostrar el nombre del usuario guardado (localStorage)
+// ------------------------------------------------
 const username = localStorage.getItem("username");
-
 if (username) {
   const spanUsername = document.getElementById("username");
-  spanUsername.textContent = username;
+  spanUsername.textContent = username; // Mostramos el nombre en la pantalla
 }
 
+// ------------------------------------------------
+// Botones: logout y opiniones
+// ------------------------------------------------
 const logoutBtn = document.getElementById("iconLogout");
 const opinionesBtn = document.getElementById("iconOpiniones");
 
+// Si se hace click en logout, borramos datos y volvemos al inicio
 logoutBtn.addEventListener("click", () => {
-  localStorage.clear();
-  window.location.href = "index.html";
+  localStorage.clear(); // Borramos el usuario
+  window.location.href = "index.html"; // Volvemos a la página principal
 });
 
+// Si se hace click en el botón de opiniones, vamos a esa página
 opinionesBtn.addEventListener("click", () => {
   window.location.href = "opiniones.html";
 });
